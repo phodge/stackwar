@@ -4,6 +4,9 @@ version = "1.0.0"
 description = ""
 authors = ["Peter Hodge"]
 license = "MIT"
+packages = [
+    { include = "stackwar" },
+]
 
 [tool.poetry.dependencies]
 python = "^3.6"
