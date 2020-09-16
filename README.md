@@ -19,6 +19,15 @@ Usage: `bin/battle-text -y YEAR LANG1 LANG2`
 
 Show a text result of battling `LANG1` against `LANG2` using data from `YEAR`.
 
+**bin/render-battle**
+
+Usage: `bin/render-battle [OPTIONS] LANG LANG --dest=battle.html`
+
+This will generate a file named "battle.html" which uses some 3rd party
+libraries to display a chart showing how many developers prefer each of the
+given languages over the last several years.
+
+
 ## Other Commands
 
 **bin/print-languages**

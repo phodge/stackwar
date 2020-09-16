@@ -1,12 +1,13 @@
 import csv
 from collections import defaultdict
-from typing import Dict
+from pathlib import Path
+from typing import Dict, Optional, Tuple
 
 import click
 
-from stackwar import get_survey_path
-from stackwar.cli.utils import sanitize
-from stackwar.surveyutils import get_cols
+from stackwar import DOWNLOAD_LINKS, get_survey_path
+from stackwar.cli.utils import mostly_sanitize, sanitize
+from stackwar.surveyutils import get_cols, iter_squashed
 
 
 @click.command()
@@ -128,3 +129,81 @@ def battle_text(year: int, lang1: str, lang2: str, alt: bool) -> None:
             print('  Popular alternatives:')
             for other, numother in trumpitems:
                 print(f'    {numother} have also used {other} and want to use it instead')
+
+
+@click.command()
+@click.option('--dest', required=True)
+@click.option('--title')
+@click.argument('lang', nargs=2)
+def render_fight(dest: str, lang: Tuple[str, str], title: Optional[str]) -> None:
+    from stackwar.renderhtml import dump_fight
+    from stackwar.languages import langtitle
+
+    assert dest.endswith('.html'), "DEST must end in '.html'"
+
+    yeardata = []
+
+    only1 = 'Only ' + langtitle(lang[0])
+    only2 = 'Only ' + langtitle(lang[1])
+
+    _order = {
+        only1: 1,
+        'Both': 2,
+        only2: 3,
+        'Neither': 4,
+    }
+
+    swap_hues = False
+    if sorted([only1, only2])[0] == only1:
+        swap_hues = True
+
+    for year in DOWNLOAD_LINKS.keys():
+        lang1 = mostly_sanitize(lang[0], year)
+        lang2 = mostly_sanitize(lang[1], year)
+
+        yeartotal = 0
+
+        def _item(state: str) -> None:
+            nonlocal yeartotal
+            yeartotal += 1
+            yeardata.append({
+                'year': year,
+                'state': state,
+                'tally': 1,
+                'order': _order[state],
+            })
+
+        if not lang1:
+            for used, want in iter_squashed(year):
+                if lang2 in used:
+                    _item(only2 if lang2 in want else 'Neither')
+        elif not lang2:
+            for used, want in iter_squashed(year):
+                if lang1 in used:
+                    _item(only1 if lang1 in want else 'Neither')
+        else:
+            for used, want in iter_squashed(year):
+                if not (lang1 in used and lang2 in used):
+                    continue
+
+                if lang1 in want:
+                    if lang2 in want:
+                        _item('Both')
+                    else:
+                        _item(only1)
+                elif lang2 in want:
+                    _item(only2)
+                else:
+                    _item('Neither')
+
+        if yeartotal < 1000:
+            click.secho(f"Only {yeartotal} data points for {year}", fg="red")
+
+    dump_fight(
+        Path(dest),
+        yeardata,
+        lang1=lang[0],
+        lang2=lang[1],
+        swap_hues=swap_hues,
+        title=title,
+    )

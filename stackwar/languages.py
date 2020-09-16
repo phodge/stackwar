@@ -75,3 +75,18 @@ def get_ban(lang: str) -> Optional[str]:
 
 def is_known(lang: str) -> bool:
     return lang in _get_hues()
+
+
+def get_hue(lang: str) -> int:
+    return _get_hues()[lang]
+
+
+def langtitle(lang: str) -> str:
+    lower = lang.lower()
+    if lower == 'vb':
+        return 'Visual Basic'
+
+    if lower == 'php':
+        return 'PHP'
+
+    return lower.title()
