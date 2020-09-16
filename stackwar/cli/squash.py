@@ -3,13 +3,13 @@ import sys
 
 import click
 
-from stackwar import get_squash_path, get_survey_path
+from stackwar import DOWNLOAD_LINKS, get_squash_path, get_survey_path
 from stackwar.surveyutils import get_cols
 
 
 @click.command()
 def squash() -> None:
-    for year in [2016, 2017, 2018, 2019, 2020]:
+    for year in DOWNLOAD_LINKS.keys():
         usedcol, wantcol = get_cols(year)
 
         collapse = {
