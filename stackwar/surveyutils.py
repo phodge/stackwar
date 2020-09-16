@@ -1,4 +1,7 @@
-from typing import Tuple
+import csv
+from typing import Iterator, Set, Tuple
+
+from stackwar import get_squash_path
 
 
 def get_cols(year: int) -> Tuple[str, str]:
@@ -43,3 +46,20 @@ def get_cols(year: int) -> Tuple[str, str]:
         raise Exception(f"Invalid year {year}")
 
     return usedcol, wantcol
+
+
+def iter_squashed(year: int) -> Iterator[Tuple[Set[str], Set[str]]]:
+    """
+    Iterate over squashed data from `year`.
+
+    Yield tuple of 2 items:
+    - `used` languages
+    - `wanted` languages
+    """
+    csvpath = get_squash_path(year)
+
+    with csvpath.open() as f:
+        reader = csv.reader(f)
+        for row in reader:
+            used, want = row
+            yield set(used.split(":")), set(want.split(":"))

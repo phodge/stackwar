@@ -1,0 +1,5 @@
+#!/usr/bin/env python
+from stackwar.cli.utils import print_languages
+
+print_languages()
+
