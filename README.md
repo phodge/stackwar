@@ -33,3 +33,21 @@ given languages over the last several years.
 **bin/print-languages**
 
 Print a list of languages for the given year's survey.
+
+
+**bin/lovedata**
+
+Generate "lovedata" for the given languages and store it in a .json file.
+
+E.g.:
+
+* `bin/lovedata java kotlin > android.json`
+* `bin/lovedata vba vb.net 'c#' > microsoft.json`
+* `bin/lovedata swift objective-c > mac.json`
+* `bin/lovedata php python java perl kotlin objective-c swift vb.net 'c#' c c++ ruby go rust > all.json`
+* `bin/lovedata c c++ go rust > lowlevel.json`
+* `bin/lovedata php python perl ruby > scripting.json`
+
+**bin/renderlove**
+
+Render the .json file from the previous step as a chart.

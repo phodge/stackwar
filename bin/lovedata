@@ -1,0 +1,64 @@
+#!/usr/bin/env python
+import json
+import sys
+from collections import defaultdict
+from typing import Dict, Tuple
+
+import click
+
+from stackwar import DOWNLOAD_LINKS
+from stackwar.languages import unalias
+from stackwar.surveyutils import iter_squashed
+
+
+@click.command()
+@click.argument('choice', nargs=-1)
+def main(choice: Tuple[str, ]) -> None:
+    sys.stdout.write('[')
+    comma = ''
+
+    for year in DOWNLOAD_LINKS.keys():
+        used: Dict[str, int] = defaultdict(int)
+        keep: Dict[str, int] = defaultdict(int)
+
+        total = 0
+        for rowused, rowwant in iter_squashed(year):
+            total += 1
+            if ((total % 1000) == 0):
+                sys.stderr.write('.')
+                sys.stderr.flush()
+
+            for x in rowused:
+                used[x] += 1
+            for x in rowwant:
+                if x in rowused:
+                    keep[x] += 1
+
+        # dump data for each year, but only the user choices
+        for lang in choice:
+            alias = unalias(lang, year)
+            if comma:
+                sys.stdout.write(comma)
+            sys.stdout.write("\n  ")
+            comma = ','
+
+            if alias is None:
+                row = dict(lang=lang, year=year, used=0, keep=0, love=0)
+            else:
+                langused = used[alias]
+                langkeep = keep[alias]
+                row = dict(
+                    lang=lang,
+                    year=year,
+                    used=langused,
+                    keep=langkeep,
+                    love=(float(langkeep) / float(langused)) if langused else 0,
+                )
+            json.dump(row, sys.stdout)
+        sys.stdout.flush()
+
+    sys.stdout.write("\n]\n")
+
+
+if __name__ == "__main__":
+    main()

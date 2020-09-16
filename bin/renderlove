@@ -1,0 +1,24 @@
+#!/usr/bin/env python
+import json
+from pathlib import Path
+
+import click
+
+from stackwar.renderhtml import dump_chart
+
+
+@click.command()
+@click.option('--dest', required=True)
+@click.option('--title', required=True)
+@click.argument('datafile', type=click.Path(dir_okay=False, exists=True))
+def main(dest: str, datafile: str, title: str) -> None:
+    with open(datafile) as f1:
+        values = json.load(f1)
+
+    assert isinstance(values, list)
+
+    dump_chart(dest=Path(dest), values=values, title=title)
+
+
+if __name__ == "__main__":
+    main()

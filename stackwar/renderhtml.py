@@ -144,3 +144,62 @@ def dump_fight(
 
     with dest.open('w') as f2:
         f2.write(_TEMPLATE.replace('__TITLE__', title).replace('__SPEC__', json.dumps(spec)))
+
+
+def dump_chart(
+    *,
+    dest: Path,
+    values: Any,
+    title: str,
+) -> None:
+    spec = {
+        '$schema': 'https://vega.github.io/schema/vega-lite/v4.json',
+        'data': {
+            'values': values,
+        },
+        'width': 800,
+        'height': 400,
+        'config': {
+            'axis': {
+                "labelFontSize": 20,
+                "titleFontSize": 20,
+                "titleFont": "Arial",
+                "labelFont": "Arial",
+            },
+        },
+        'mark': {'type': 'line'}
+    }
+
+    spec['transform'] = [
+        {"calculate": "datum.love * 100", "as": "love100"},
+    ]
+    spec['encoding'] = {
+        'x': {
+            "field": "year",
+            "type": "nominal",
+            "axis": {
+                "title": "Year",
+            },
+        },
+        'y': {
+            "field": "love100",
+            "type": "quantitative",
+            "scale": {"domain": [0, 100]},
+            "axis": {
+                "title": "Want to continue using (%)",
+            },
+        },
+        'color': {
+            "field": "lang",
+            "type": "nominal",
+            "legend": {
+                "labelFont": "Monospace",
+                "labelFontSize": 40,
+                "symbolStrokeWidth": 15,
+                "title": None,
+            },
+        },
+    }
+
+    with dest.open('w') as f2:
+        f2.write(_TEMPLATE.replace('__TITLE__', title).replace('__SPEC__', json.dumps(spec)))
